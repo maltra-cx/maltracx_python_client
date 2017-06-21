@@ -1,0 +1,11 @@
+syntax: glob
+*.pyc
+*.log
+build/*
+maltracx.egg-info/*
+dist/*
+maltracx.egg*
+.tox/*
+.cache/*
+.ropeproject/*
+venv/
