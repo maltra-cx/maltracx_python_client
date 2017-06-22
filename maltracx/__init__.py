@@ -6,14 +6,109 @@ Official maltra.cx REST API client
 
 __title__ = 'maltracx'
 __version__ = '0.0.1'
-__all__ = ()
+__all__ = ('Client',)
 __author__ = 'Johan Nestaas <johan@maltra.cx>'
 __license__ = 'BSD'
 __copyright__ = 'Copyright 2017 Johan Nestaas'
 
+import sys
+from .client import Client
+
+
+def _add_args(parser):
+    parser.add_argument('--apikey-id', '-I')
+    parser.add_argument('--apikey-secret', '-S')
+    parser.add_argument('--root-url', '-R')
+
 
 def main():
-    pass
+    import json
+    import argparse
+    parser = argparse.ArgumentParser()
+    subs = parser.add_subparsers(dest='cmd')
+
+    p = subs.add_parser('create-apikey')
+    p.add_argument('username')
+    p.add_argument('password')
+    p.add_argument('--expires-at', '-x')
+    p.add_argument('--root-url', '-R')
+
+    p = subs.add_parser('news')
+    _add_args(p)
+
+    p = subs.add_parser('user')
+    _add_args(p)
+
+    p = subs.add_parser('report')
+    subs2 = p.add_subparsers(dest='report_cmd')
+
+    p2 = subs2.add_parser('get')
+    _add_args(p2)
+
+    p2 = subs2.add_parser('create')
+    _add_args(p2)
+    p2.add_argument('name')
+    p2.add_argument('--description', '-d')
+    p2.add_argument('--tlp', '-t', default='white')
+
+    p = subs.add_parser('urlmon')
+    subs2 = p.add_subparsers(dest='urlmon_cmd')
+
+    p2 = subs2.add_parser('get')
+    _add_args(p2)
+
+    p2 = subs2.add_parser('create')
+    _add_args(p2)
+    p2.add_argument('url')
+    p2.add_argument('--tlp', '-t', default='white')
+
+    args = parser.parse_args()
+
+    try:
+        if hasattr(args, 'apikey_id'):
+            client = Client(apikey_id=args.apikey_id,
+                            apikey_secret=args.apikey_secret,
+                            root_url=args.root_url)
+        elif hasattr(args, 'root_url'):
+            client = Client(root_url=args.root_url)
+        else:
+            client = Client()
+    except:
+        parser.print_usage()
+        sys.exit(1)
+
+    try:
+        if args.cmd == 'create-apikey':
+            response = client.create_apikey(args.username, args.password,
+                                            expires_at=args.expires_at)
+        elif args.cmd == 'news':
+            response = client.get_news()
+        elif args.cmd == 'user':
+            response = client.get_user()
+        elif args.cmd == 'report':
+            if args.report_cmd == 'get':
+                response = client.get_report()
+            elif args.report_cmd == 'create':
+                response = client.create_report(
+                    args.name, description=args.description, tlp=args.tlp)
+            else:
+                parser.print_usage()
+                sys.exit(1)
+        elif args.cmd == 'urlmon':
+            if args.urlmon_cmd == 'get':
+                response = client.get_url_monitor()
+            elif args.urlmon_cmd == 'create':
+                response = client.create_url_monitor(args.url, tlp=args.tlp)
+            else:
+                parser.print_usage()
+                sys.exit(1)
+        else:
+            parser.print_usage()
+            sys.exit(1)
+    except Exception as e:
+        sys.exit(str(e))
+
+    print(json.dumps(response, indent=4))
 
 
 if __name__ == '__main__':

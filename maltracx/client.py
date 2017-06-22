@@ -1,6 +1,5 @@
-import json
 import requests
-from itertools import wraps
+from functools import wraps
 from confutil import Config
 
 
@@ -11,11 +10,15 @@ def _raise_status(func):
 
     @wraps(func)
     def decorated(*args, **kwargs):
-        data, status = func(*args, **kwargs)
+        response = func(*args, **kwargs)
+        status = response.status_code
         if status // 100 == 2:
-            return data
+            try:
+                return response.json()
+            except:
+                raise ValueError(response.text)
         else:
-            raise ValueError(json.dumps(data))
+            raise ValueError(response.text)
 
     return decorated
 
@@ -42,35 +45,35 @@ class Client:
         url = self._url_to(path, **kwargs)
         response = requests.get(url, params=params or {}, json=data or {},
                                 auth=self.auth)
-        return response.json(), response.status_code
+        return response
 
     def post(self, path, params=None, data=None, **kwargs):
         url = self._url_to(path, **kwargs)
         response = requests.post(url, params=params or {}, json=data or {},
                                  auth=self.auth)
-        return response.json(), response.status_code
+        return response
 
     def put(self, path, params=None, data=None, **kwargs):
         url = self._url_to(path, **kwargs)
         response = requests.put(url, params=params or {}, json=data or {},
                                 auth=self.auth)
-        return response.json(), response.status_code
+        return response
 
     def delete(self, path, params=None, data=None, **kwargs):
         url = self._url_to(path, **kwargs)
         response = requests.delete(url, params=params or {}, json=data or {},
                                    auth=self.auth)
-        return response.json(), response.status_code
+        return response
 
     @_raise_status
     def create_apikey(self, username, password, expires_at=None):
         url = self._url_to('/user/create-apikey')
-        response = requests.get(url, json={
+        response = requests.post(url, json={
             'username': username,
             'password': password,
             'expires_at': expires_at,
         })
-        return response.json(), response.status_code
+        return response
 
     @_raise_status
     def get_news(self):
