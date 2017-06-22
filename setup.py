@@ -41,6 +41,7 @@ setup(
     ],
     install_requires=[
         'requests',
+        'confutil',
     ],
     entry_points={
         'console_scripts': [
