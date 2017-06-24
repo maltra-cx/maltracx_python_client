@@ -111,3 +111,13 @@ class Client:
             'user_agent': user_agent,
         }
         return self.put('/monitor/url', data=data)
+
+    @_raise_status
+    def delete_url_monitor(self, guids):
+        data = {'guid': guids}
+        return self.delete('/monitor/url', data=data)
+
+    @_raise_status
+    def trigger_url_monitor(self, guids):
+        data = {'guid': guids}
+        return self.post('/monitor/url/trigger', data=data)

@@ -65,6 +65,14 @@ def main():
     p2.add_argument('--user-agent', '--ua', '-u')
     p2.add_argument('--yara-rules', '-y', nargs='*')
 
+    p2 = subs2.add_parser('delete')
+    _add_args(p2)
+    p2.add_argument('guids', nargs='+')
+
+    p2 = subs2.add_parser('trigger')
+    _add_args(p2)
+    p2.add_argument('guids', nargs='+')
+
     args = parser.parse_args()
 
     try:
@@ -105,6 +113,10 @@ def main():
                     args.url, tlp=args.tlp, referer=args.referer,
                     user_agent=args.user_agent, yara_rules=args.yara_rules,
                 )
+            elif args.urlmon_cmd == 'delete':
+                response = client.delete_url_monitor(args.guids)
+            elif args.urlmon_cmd == 'trigger':
+                response = client.trigger_url_monitor(args.guids)
             else:
                 parser.print_usage()
                 sys.exit(1)
