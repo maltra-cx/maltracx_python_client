@@ -73,6 +73,29 @@ def main():
     _add_args(p2)
     p2.add_argument('guids', nargs='+')
 
+    p = subs.add_parser('yararule')
+    subs2 = p.add_subparsers(dest='yararule_cmd')
+
+    p2 = subs2.add_parser('get')
+    _add_args(p2)
+    p2.add_argument('--guids', '-g', nargs='*')
+
+    p2 = subs2.add_parser('create')
+    _add_args(p2)
+    p2.add_argument('source')
+    p2.add_argument('--tlp', '-t', default='white')
+
+    p2 = subs2.add_parser('delete')
+    _add_args(p2)
+    p2.add_argument('guids', nargs='+')
+
+    p = subs.add_parser('yaramatch')
+    subs2 = p.add_subparsers(dest='yaramatch_cmd')
+
+    p2 = subs2.add_parser('get')
+    _add_args(p2)
+    p2.add_argument('--guids', '-g', nargs='*')
+
     args = parser.parse_args()
 
     try:
@@ -120,6 +143,16 @@ def main():
             else:
                 parser.print_usage()
                 sys.exit(1)
+        elif args.cmd == 'yararule':
+            if args.yararule_cmd == 'get':
+                response = client.get_yara_rule(guids=args.guids or None)
+            elif args.yararule_cmd == 'create':
+                response = client.create_yara_rule(args.source, tlp=args.tlp)
+            elif args.yararule_cmd == 'delete':
+                response = client.delete_yara_rule(args.guids)
+        elif args.cmd == 'yaramatch':
+            if args.yaramatch_cmd == 'get':
+                response = client.get_yara_match(guids=args.guids or None)
         else:
             parser.print_usage()
             sys.exit(1)

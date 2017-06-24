@@ -121,3 +121,27 @@ class Client:
     def trigger_url_monitor(self, guids):
         data = {'guid': guids}
         return self.post('/monitor/url/trigger', data=data)
+
+    @_raise_status
+    def get_yara_rule(self, guids=None):
+        data = {}
+        if guids is not None:
+            data = {'guid': guids}
+        return self.get('/yara/rule', data=data)
+
+    @_raise_status
+    def create_yara_rule(self, source, tlp='white'):
+        data = {'source': source, 'tlp': tlp}
+        return self.put('/yara/rule', data=data)
+
+    @_raise_status
+    def delete_yara_rule(self, guids):
+        data = {'guid': guids}
+        return self.delete('/yara/rule', data=data)
+
+    @_raise_status
+    def get_yara_match(self, guids=None):
+        data = {}
+        if guids is not None:
+            data = {'guid': guids}
+        return self.get('/yara/match', data=data)
