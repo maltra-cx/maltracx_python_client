@@ -101,9 +101,13 @@ class Client:
         return self.get('/monitor/url')
 
     @_raise_status
-    def create_url_monitor(self, url, tlp='white'):
+    def create_url_monitor(self, url, tlp='white', referer=None,
+                           user_agent=None, yara_rules=None):
         data = {
             'url': url,
             'tlp': tlp,
+            'yara_rules': yara_rules or None,
+            'referer': referer,
+            'user_agent': user_agent,
         }
         return self.put('/monitor/url', data=data)

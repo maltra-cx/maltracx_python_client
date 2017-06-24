@@ -61,6 +61,9 @@ def main():
     _add_args(p2)
     p2.add_argument('url')
     p2.add_argument('--tlp', '-t', default='white')
+    p2.add_argument('--referer', '-r')
+    p2.add_argument('--user-agent', '--ua', '-u')
+    p2.add_argument('--yara-rules', '-y', nargs='*')
 
     args = parser.parse_args()
 
@@ -98,7 +101,10 @@ def main():
             if args.urlmon_cmd == 'get':
                 response = client.get_url_monitor()
             elif args.urlmon_cmd == 'create':
-                response = client.create_url_monitor(args.url, tlp=args.tlp)
+                response = client.create_url_monitor(
+                    args.url, tlp=args.tlp, referer=args.referer,
+                    user_agent=args.user_agent, yara_rules=args.yara_rules,
+                )
             else:
                 parser.print_usage()
                 sys.exit(1)
