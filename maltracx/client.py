@@ -102,15 +102,35 @@ class Client:
 
     @_raise_status
     def create_url_monitor(self, url, tlp='white', referer=None,
-                           user_agent=None, yara_rules=None):
+                           user_agent=None, yara_rules=None, yara_tags=None,
+                           namespaces=None):
         data = {
             'url': url,
             'tlp': tlp,
             'yara_rules': yara_rules or None,
+            'namespaces': namespaces or None,
+            'yara_tags': yara_tags or None,
             'referer': referer,
             'user_agent': user_agent,
         }
         return self.put('/monitor/url', data=data)
+
+    @_raise_status
+    def update_url_monitor(self, guids, tlp=None, yara_rules=None,
+                           yara_tags=None, namespaces=None, r_whitelist=None,
+                           w_whitelist=None, d_whitelist=None,
+                           x_whitelist=None):
+        data = {
+            'tlp': tlp,
+            'yara_rules': yara_rules,
+            'yara_tags': yara_tags,
+            'namespaces': namespaces,
+            'r_whitelist': r_whitelist,
+            'w_whitelist': w_whitelist,
+            'd_whitelist': d_whitelist,
+            'x_whitelist': x_whitelist,
+        }
+        return self.post('/monitor/url', data=data)
 
     @_raise_status
     def delete_url_monitor(self, guids):
@@ -123,15 +143,19 @@ class Client:
         return self.post('/monitor/url/trigger', data=data)
 
     @_raise_status
-    def get_yara_rule(self, guids=None):
+    def get_yara_rule(self, guids=None, prefix=None, id=None):
         data = {}
         if guids is not None:
-            data = {'guid': guids}
+            data['guid'] = guids
+        if prefix is not None:
+            data['prefix'] = prefix
+        if id is not None:
+            data['id'] = id
         return self.get('/yara/rule', data=data)
 
     @_raise_status
-    def create_yara_rule(self, source, tlp='white'):
-        data = {'source': source, 'tlp': tlp}
+    def create_yara_rule(self, source, namespace=None, tlp='white'):
+        data = {'source': source, 'tlp': tlp, 'namespace': namespace}
         return self.put('/yara/rule', data=data)
 
     @_raise_status

@@ -64,6 +64,20 @@ def main():
     p2.add_argument('--referer', '-r')
     p2.add_argument('--user-agent', '--ua', '-u')
     p2.add_argument('--yara-rules', '-y', nargs='*')
+    p2.add_argument('--yara-tags', '-t', nargs='*')
+    p2.add_argument('--namespaces', '-n', nargs='*')
+
+    p2 = subs2.add_parser('update')
+    _add_args(p2)
+    p2.add_argument('guids', nargs='+')
+    p2.add_argument('--tlp', '-t')
+    p2.add_argument('--r-whitelist', '--rw', nargs='*')
+    p2.add_argument('--w-whitelist', '--ww', nargs='*')
+    p2.add_argument('--d-whitelist', '--dw', nargs='*')
+    p2.add_argument('--x-whitelist', '--xw', nargs='*')
+    p2.add_argument('--yara-rules', '-y', nargs='*')
+    p2.add_argument('--yara-tags', '-t', nargs='*')
+    p2.add_argument('--namespaces', '-n', nargs='*')
 
     p2 = subs2.add_parser('delete')
     _add_args(p2)
@@ -79,10 +93,13 @@ def main():
     p2 = subs2.add_parser('get')
     _add_args(p2)
     p2.add_argument('--guids', '-g', nargs='*')
+    p2.add_argument('--id', '-i')
+    p2.add_argument('--prefix', '-p')
 
     p2 = subs2.add_parser('create')
     _add_args(p2)
     p2.add_argument('source')
+    p2.add_argument('--namespace', '-n')
     p2.add_argument('--tlp', '-t', default='white')
 
     p2 = subs2.add_parser('delete')
@@ -135,6 +152,14 @@ def main():
                 response = client.create_url_monitor(
                     args.url, tlp=args.tlp, referer=args.referer,
                     user_agent=args.user_agent, yara_rules=args.yara_rules,
+                    yara_tags=args.yara_tags, namespaces=args.namespaces,
+                )
+            elif args.urlmon_cmd == 'update':
+                response = client.update_url_monitor(
+                    args.guids, tlp=args.tlp, yara_rules=args.yara_rules,
+                    yara_tags=args.yara_tags, namespaces=args.namespaces,
+                    r_whitelist=args.r_whitelist, w_whitelist=args.w_whitelist,
+                    d_whitelist=args.d_whitelist, x_whitelist=args.x_whitelist,
                 )
             elif args.urlmon_cmd == 'delete':
                 response = client.delete_url_monitor(args.guids)
@@ -145,9 +170,11 @@ def main():
                 sys.exit(1)
         elif args.cmd == 'yararule':
             if args.yararule_cmd == 'get':
-                response = client.get_yara_rule(guids=args.guids or None)
+                response = client.get_yara_rule(guids=args.guids or None,
+                                                id=args.id, prefix=args.prefix)
             elif args.yararule_cmd == 'create':
-                response = client.create_yara_rule(args.source, tlp=args.tlp)
+                response = client.create_yara_rule(args.source, tlp=args.tlp,
+                                                   namespace=args.namespace)
             elif args.yararule_cmd == 'delete':
                 response = client.delete_yara_rule(args.guids)
         elif args.cmd == 'yaramatch':
